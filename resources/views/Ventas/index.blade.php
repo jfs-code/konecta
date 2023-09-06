@@ -1,7 +1,7 @@
 @extends('./../plantilla')
 
 @section('back')
-    <div class="m-1">
+    <div class="m-1 p-3">
         <a role="button" href="{{ route('index.menu') }}" class="btn-back"><img src="{{ asset('images/back.png') }}"
                 class="btn-back" alt="Atrás"></a>
     </div>
@@ -24,9 +24,9 @@
                     <tbody>
                         @foreach ($ventas as $row)
                             <tr>
-                                <td> {{ $row->id_producto }} </td>
+                                <td> {{ $row->producto }} </td>
                                 <td> {{ $row->cantidad }} </td>
-                                <td> {{ $row->fecha_creacion }} </td>
+                                <td> {{ date('Y-m-d H:i:s', strtotime($row->fecha_creacion)) }} </td>
                             </tr>
                         @endforeach
                     </tbody>

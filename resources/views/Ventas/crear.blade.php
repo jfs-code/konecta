@@ -1,7 +1,7 @@
 @extends('./../plantilla')
 
 @section('back')
-    <div class="m-1">
+    <div class="m-1 p-3">
         <a role="button" href="{{ route('index.venta') }}" class="btn-back"><img src="{{ asset('images/back.png') }}"
                 class="btn-back" alt="Atrás"></a>
     </div>
@@ -9,11 +9,16 @@
 
 @section('content')
     <h1 class="text-center">Vender Producto</h1>
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <form method="POST" class="row g-3 mt-1" action="{{ route('guardar.venta') }}">
         @csrf()
         <div class="col-md-6 mt-3">
             <label for="nombre_producto">Selecciona un Producto:</label>
-            <select class="form-select form-select-sm" aria-label="Small select example">
+            <select class="form-select form-control" aria-label="Small select example" id="producto" name="producto">
                 <option selected>Seleccione...</option>
                 @foreach ($productos as $producto)
                     <option value="{{ $producto->id }}">{{ $producto->nombre_producto }}</option>
@@ -36,5 +41,7 @@
         </div>
     </form>
 @endsection
+
+
 
 

@@ -10,7 +10,13 @@ use Illuminate\Http\Request;
 class VentasController extends Controller
 {
     public function index(){
-        $ventas = Ventas::all();        
+        // $ventas = Ventas::all(); 'ventas.fecha_creacion',
+        $ventas = Ventas::join('productos', 'ventas.id_producto', '=', 'productos.id')
+            ->select('ventas.id',
+                     'ventas.cantidad',
+                     'ventas.fecha_creacion',
+                     'productos.nombre_producto as producto'
+                     )->orderBy('ventas.id','desc')->get();
         return view('Ventas.index', compact('ventas'));
     }
 
@@ -19,33 +25,29 @@ class VentasController extends Controller
         return view('Ventas.crear',compact('productos'));
     }
 
-    public function guardar(Request $request){        
+    public function guardar(Request $request){   
         request()->validate([
-            'nombre_producto' => 'required',
+            'producto' => 'required',
             'cantidad' => 'required'
         ]);   
         
-        $producto = Productos::find($request->id);
-        
-        $venta = Ventas::create([
-            'nombre_producto' => $request->nombre_producto,
-            'referencia' => $request->referencia,
-            'precio' => $request->precio,
-            'peso' => $request->peso,
-            'categoria' => $request->categoria,
-            'stock' => $request->stock,
+        $producto = Productos::find($request->producto);
+        if($producto->stock < $request->cantidad){
+            return redirect()->route('crear.venta')->with('error', 'No se pudo guardar, porque no hay la cantidad suficiente para la venta');
+        }
+        $stock = $producto->stock - $request->cantidad;
+        Ventas::create([
+            'id_producto' => $request->producto,
+            'cantidad' => $request->cantidad,
             'estado' => '1',
             'fecha_creacion' => date("Y-m-d H:i:s"),
             'fecha_modificacion' => date("Y-m-d H:i:s"),
         ]);
-        return redirect()->route('index.producto')->with('guardar', 'ok');
-    }
 
-    public function eliminar(){
-
-    }
-
-    public function consultar(){
-
+        $producto = Productos::where("id", $producto->id)->update([            
+            'stock' => $stock,
+            'fecha_modificacion' => date("Y-m-d H:i:s"),
+        ]);
+        return redirect()->route('index.venta')->with('guardar', 'ok');               
     }
 }
